@@ -25,11 +25,11 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UserRegisterRequest'
+              $ref: "#/components/schemas/UserRegisterRequest"
       responses:
-        '201':
+        "201":
           description: User registered successfully, returns JWT token.
-        '400':
+        "400":
           description: Invalid input or user already exists
   /auth/login:
     post:
@@ -40,16 +40,18 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UserLoginRequest'
+              $ref: "#/components/schemas/UserLoginRequest"
       responses:
-        '200':
+        "200":
           description: Success, returns JWT token.
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  token: {type: string, example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."}
+                  token: 
+                    type: string
+                    example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
   /auth/me:
     get:
       tags: [Auth]
@@ -57,13 +59,13 @@ paths:
       security:
         - bearerAuth: []
       responses:
-        '200':
+        "200":
           description: Returns current user details.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UserDetail'
-        '401':
+                $ref: "#/components/schemas/UserDetail"
+        "401":
           description: Unauthorized/Invalid token
 
   # --- PRODUCT SERVICE ---
@@ -72,14 +74,14 @@ paths:
       tags: [Products]
       summary: List all products
       responses:
-        '200':
+        "200":
           description: A list of products.
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Product'
+                  $ref: "#/components/schemas/Product"
     post:
       tags: [Products]
       summary: Create a new product (Admin access required)
@@ -90,11 +92,11 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ProductCreateRequest'
+              $ref: "#/components/schemas/ProductCreateRequest"
       responses:
-        '201':
+        "201":
           description: Product created successfully.
-        '403':
+        "403":
           description: Forbidden (Requires Admin Role)
   /products/{id}:
     get:
@@ -104,15 +106,15 @@ paths:
         - name: id
           in: path
           required: true
-          schema: {type: integer}
+          schema: { type: integer }
       responses:
-        '200':
+        "200":
           description: Product details found.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Product'
-        '404':
+                $ref: "#/components/schemas/Product"
+        "404":
           description: Product not found
 
   # --- ORDER SERVICE ---
@@ -127,19 +129,19 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/OrderCreateRequest'
+              $ref: "#/components/schemas/OrderCreateRequest"
       responses:
-        '201':
-          description: Order created successfully (Status: PENDING), returns order ID.
-        '401':
+        "201":
+          description: "Order created successfully (Status: PENDING), returns order ID."
+        "401":
           description: Unauthorized
     get:
       tags: [Orders]
-      summary: List authenticated user's orders
+      summary: "List authenticated user's orders"
       security:
         - bearerAuth: []
       responses:
-        '200':
+        "200":
           description: List of user orders.
   /orders/{id}:
     get:
@@ -151,11 +153,11 @@ paths:
         - name: id
           in: path
           required: true
-          schema: {type: integer}
+          schema: { type: integer }
       responses:
-        '200':
+        "200":
           description: Returns order status and details.
-        '404':
+        "404":
           description: Order not found
 
   # --- PAYMENT SERVICE ---
@@ -170,11 +172,11 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PaymentInitiationRequest'
+              $ref: "#/components/schemas/PaymentInitiationRequest"
       responses:
-        '200':
+        "200":
           description: Payment processing initiated, returns transaction ID.
-        '402':
+        "402":
           description: Payment required
   /payments/webhook:
     post:
@@ -182,9 +184,9 @@ paths:
       summary: Payment provider webhook (Internal/External)
       description: Endpoint for the external payment gateway to send transaction status updates.
       responses:
-        '200':
+        "200":
           description: Webhook received and processed successfully.
-        '400':
+        "400":
           description: Invalid webhook payload
 
   # --- NOTIFICATION SERVICE (INTERNAL) ---
@@ -198,9 +200,9 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/NotificationRequest'
+              $ref: "#/components/schemas/NotificationRequest"
       responses:
-        '202':
+        "202":
           description: Notification accepted for processing.
 
 components:
@@ -214,34 +216,34 @@ components:
       type: object
       required: [email, password]
       properties:
-        email: {type: string, format: email, example: user@example.com}
-        password: {type: string, example: secure_password_123}
+        email: { type: string, format: email, example: user@example.com }
+        password: { type: string, example: secure_password_123 }
     UserLoginRequest:
       type: object
       required: [email, password]
       properties:
-        email: {type: string, format: email}
-        password: {type: string}
+        email: { type: string, format: email }
+        password: { type: string }
     UserDetail:
       type: object
       properties:
-        id: {type: integer, example: 101}
-        email: {type: string, format: email}
-        username: {type: string, nullable: true}
+        id: { type: integer, example: 101 }
+        email: { type: string, format: email }
+        username: { type: string, nullable: true }
     Product:
       type: object
       properties:
-        id: {type: integer, example: 550}
-        name: {type: string, example: "Wireless Keyboard"}
-        price: {type: number, format: float, example: 45.99}
-        stock_level: {type: integer, example: 120}
+        id: { type: integer, example: 550 }
+        name: { type: string, example: "Wireless Keyboard" }
+        price: { type: number, format: float, example: 45.99 }
+        stock_level: { type: integer, example: 120 }
     ProductCreateRequest:
       type: object
       required: [name, price, stock_level]
       properties:
-        name: {type: string}
-        price: {type: number, format: float}
-        stock_level: {type: integer}
+        name: { type: string }
+        price: { type: number, format: float }
+        stock_level: { type: integer }
     OrderCreateRequest:
       type: object
       required: [items]
@@ -251,19 +253,25 @@ components:
           items:
             type: object
             properties:
-              product_id: {type: integer}
-              quantity: {type: integer}
+              product_id: { type: integer }
+              quantity: { type: integer }
     PaymentInitiationRequest:
       type: object
       required: [order_id]
       properties:
-        order_id: {type: integer, example: 8821}
-        payment_method: {type: string, enum: [credit_card, paypal], example: credit_card}
+        order_id: { type: integer, example: 8821 }
+        payment_method:
+          type: string
+          enum: [credit_card, paypal]
+          example: credit_card
     NotificationRequest:
       type: object
       required: [recipient, subject, body]
       properties:
-        recipient: {type: string, format: email, description: User email or ID.}
-        subject: {type: string}
-        body: {type: string}
-        type: {type: string, enum: [email, sms, push], example: email}
+        recipient: 
+          type: string
+          format: email
+          description: User email or ID.
+        subject: { type: string }
+        body: { type: string }
+        type: { type: string, enum: [email, sms, push], example: email }
