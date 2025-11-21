@@ -3,8 +3,6 @@ info:
   title: E-Commerce Microservices API Contract
   description: Unified OpenAPI contract for the core microservice ecosystem (Auth, Product, Order, Payment, Notification).
   version: 1.0.0
-servers:
-  - url: https://api.yourdomain.com/v1
 tags:
   - name: Auth
     description: User registration, login, and profile management.
