@@ -5,7 +5,7 @@ window.onload = function () {
   window.ui = SwaggerUIBundle({
     // 👇 CRITICAL CHANGE: This tells Swagger UI to look for your specification file
     // in the same directory (the /docs folder).
-    url: "./openapi.yml",
+    url: "./openapi.yaml",
     dom_id: "#swagger-ui",
     deepLinking: true,
     presets: [SwaggerUIBundle.presets.apis, SwaggerUIStandalonePreset],
