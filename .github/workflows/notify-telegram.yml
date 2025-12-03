@@ -7,17 +7,23 @@ on:
 jobs:
   notify:
     runs-on: ubuntu-latest
-
+    env:
+      TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+      TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+      GITHUB_ACTOR: ${{ github.actor }}
+      GITHUB_SHA: ${{ github.sha }}
+      GITHUB_MESSAGE: ${{ github.event.head_commit.message }}
+      GITHUB_REPO: ${{ github.repository }}
     steps:
       - name: Notify Telegram on Push
         run: |
-          MESSAGE="🚀 *New Push to main*\n
-👤 Author: \`${{ github.actor }}\`\n
-🆔 Commit: \`${{ github.sha }}\`\n
-📝 Message: _${{ github.event.head_commit.message }}_\n
-🔗 Repo: ${{ github.repository }}\n"
+          MESSAGE="🚀 *New Push to main*\n\
+👤 Author: \`${GITHUB_ACTOR}\`\n\
+🆔 Commit: \`${GITHUB_SHA}\`\n\
+📝 Message: _${GITHUB_MESSAGE}_\n\
+🔗 Repo: ${GITHUB_REPO}"
 
-          curl -s -X POST https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage \
-          -d chat_id=${{ secrets.TELEGRAM_CHAT_ID }} \
-          -d parse_mode=Markdown \
-          -d text="$MESSAGE"
+          curl -s -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
+            -d chat_id="${TELEGRAM_CHAT_ID}" \
+            -d parse_mode="Markdown" \
+            --data-urlencode text="$MESSAGE"
