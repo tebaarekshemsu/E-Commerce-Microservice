@@ -18,10 +18,10 @@ jobs:
       - name: Notify Telegram on Push
         run: |
           MESSAGE="🚀 *New Push to main*\n\
-👤 Author: \`${GITHUB_ACTOR}\`\n\
-🆔 Commit: \`${GITHUB_SHA}\`\n\
-📝 Message: _${GITHUB_MESSAGE}_\n\
-🔗 Repo: ${GITHUB_REPO}"
+          👤 Author: \`${GITHUB_ACTOR}\`\n\
+          🆔 Commit: \`${GITHUB_SHA}\`\n\
+          📝 Message: _${GITHUB_MESSAGE}_\n\
+          🔗 Repo: ${GITHUB_REPO}"
 
           curl -s -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
             -d chat_id="${TELEGRAM_CHAT_ID}" \
