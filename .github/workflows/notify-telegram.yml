@@ -67,9 +67,34 @@ jobs:
             MSG=$(printf '%s\n' "${lines[@]}")
           fi
 
-          # Send message to Telegram (use MarkdownV2). Use --data-urlencode to preserve formatting.
-          curl -s -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
+          # Debugging: print key info (secrets are masked by GitHub Actions)
+          echo "EVENT_NAME=${EVENT_NAME}"
+          echo "WORKFLOW_CONCLUSION=${WORKFLOW_CONCLUSION}"
+          echo "GITHUB_ACTOR=${GITHUB_ACTOR}"
+          if [ -z "${TELEGRAM_BOT_TOKEN:-}" ] || [ -z "${TELEGRAM_CHAT_ID:-}" ]; then
+            echo "ERROR: TELEGRAM_BOT_TOKEN or TELEGRAM_CHAT_ID is not set. Cannot send notification."
+            # print the assembled MSG for debugging (do NOT print secrets)
+            echo "===== MESSAGE BEGIN ====="
+            echo "$MSG"
+            echo "===== MESSAGE END ====="
+            exit 1
+          fi
+
+          # Send message to Telegram (use MarkdownV2). Capture response and HTTP code for debugging.
+          response=$(curl -sS -w "\n%{http_code}" -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
             -d chat_id="${TELEGRAM_CHAT_ID}" \
             -d parse_mode="MarkdownV2" \
             -d message_thread_id="${TOPIC_ID}" \
-            --data-urlencode text="$MSG"
+            --data-urlencode text="$MSG" ) || true
+
+          echo "Telegram API response:" 
+          echo "$response"
+
+          # Fail the step if HTTP code indicates error (non-2xx)
+          http_code=$(echo "$response" | tail -n1)
+          body=$(echo "$response" | sed '$d')
+          if [[ "$http_code" != 2* ]]; then
+            echo "ERROR: Telegram API returned HTTP code $http_code"
+            echo "Response body: $body"
+            exit 1
+          fi
