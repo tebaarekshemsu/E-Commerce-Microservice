@@ -3,29 +3,59 @@ name: Telegram Notify
 on:
   push:
     branches: [main]
+  workflow_run:
+    types: [completed]
 
 jobs:
   notify:
+    # run for pushes OR for completed workflow runs that failed
+    if: ${{ github.event_name == 'push' || (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'failure') }}
     runs-on: ubuntu-latest
     env:
       TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
       TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-      GITHUB_ACTOR: ${{ github.actor }}
-      GITHUB_SHA: ${{ github.sha }}
-      GITHUB_MESSAGE: ${{ github.event.head_commit.message }}
-      GITHUB_REPO: ${{ github.repository }}
       TOPIC_ID: 154
+      EVENT_NAME: ${{ github.event_name }}
+      GITHUB_ACTOR: ${{ github.actor }}
+      GITHUB_REPO: ${{ github.repository }}
+      # push fields (may be empty for workflow_run events)
+      PUSH_COMMIT_SHA: ${{ github.sha }}
+      PUSH_COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
+      # workflow_run fields (may be empty for push events)
+      WORKFLOW_NAME: ${{ github.event.workflow_run.name }}
+      WORKFLOW_CONCLUSION: ${{ github.event.workflow_run.conclusion }}
+      WORKFLOW_URL: ${{ github.event.workflow_run.html_url }}
+      WORKFLOW_HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+      WORKFLOW_RUN_ID: ${{ github.event.workflow_run.id }}
     steps:
-      - name: Notify Telegram on Push
+      - name: Notify Telegram (push or failed workflow)
+        shell: bash
         run: |
-          MESSAGE="🚀 *New Push to main*\n\
-          👤 Author: \`${GITHUB_ACTOR}\`\n\
-          🆔 Commit: \`${GITHUB_SHA}\`\n\
-          📝 Message: _${GITHUB_MESSAGE}_\n\
-          🔗 Repo: ${GITHUB_REPO}"
+          # Escape function for Telegram MarkdownV2
+          escape_md_v2() {
+            perl -C -pe 's/([_\*\[\]\(\)~`>#\+\-\=\|\{\}\.\!\\])/\\$1/g' <<< "$1"
+          }
 
+          if [ "$EVENT_NAME" = "push" ]; then
+            TITLE="🚀 New Push to main"
+            AUTHOR_ESC=$(escape_md_v2 "${GITHUB_ACTOR}")
+            SHA_ESC=$(escape_md_v2 "${PUSH_COMMIT_SHA}")
+            COMMIT_MSG_ESC=$(escape_md_v2 "${PUSH_COMMIT_MESSAGE}")
+            REPO_ESC=$(escape_md_v2 "${GITHUB_REPO}")
+            MSG="*${TITLE}*\n👤 Author: \`${AUTHOR_ESC}\`\n🆔 Commit: \`${SHA_ESC}\`\n📝 Message: _${COMMIT_MSG_ESC}_\n🔗 Repo: ${REPO_ESC}"
+          else
+            TITLE="❌ Workflow Failed"
+            WF_NAME_ESC=$(escape_md_v2 "${WORKFLOW_NAME}")
+            CONCL_ESC=$(escape_md_v2 "${WORKFLOW_CONCLUSION}")
+            WF_URL_ESC=$(escape_md_v2 "${WORKFLOW_URL}")
+            HEAD_SHA_ESC=$(escape_md_v2 "${WORKFLOW_HEAD_SHA}")
+            ACTOR_ESC=$(escape_md_v2 "${GITHUB_ACTOR}")
+            MSG="*${TITLE}*\n⚙️ Workflow: *${WF_NAME_ESC}*\n👤 Triggered by: \`${ACTOR_ESC}\`\n🆔 Head SHA: \`${HEAD_SHA_ESC}\`\n🚨 Conclusion: *${CONCL_ESC}*\n🔗 Run: ${WF_URL_ESC}"
+          fi
+
+          # Send message to Telegram (use MarkdownV2). Use --data-urlencode to preserve formatting.
           curl -s -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
             -d chat_id="${TELEGRAM_CHAT_ID}" \
-            -d parse_mode="Markdown" \
+            -d parse_mode="MarkdownV2" \
             -d message_thread_id="${TOPIC_ID}" \
-            --data-urlencode text="$MESSAGE"
+            --data-urlencode text="$MSG"
