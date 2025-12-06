@@ -43,7 +43,13 @@ jobs:
             SHA_ESC=$(escape_md_v2 "${PUSH_COMMIT_SHA}")
             COMMIT_MSG_ESC=$(escape_md_v2 "${PUSH_COMMIT_MESSAGE}")
             REPO_ESC=$(escape_md_v2 "${GITHUB_REPO}")
-            MSG="*${TITLE}*\n👤 Author: \`${AUTHOR_ESC}\`\n🆔 Commit: \`${SHA_ESC}\`\n📝 Message: _${COMMIT_MSG_ESC}_\n🔗 Repo: ${REPO_ESC}"
+            lines=()
+            lines+=("*${TITLE}")
+            lines+=("👤 Author: \`${AUTHOR_ESC}\`")
+            lines+=("🆔 Commit: \`${SHA_ESC}\`")
+            lines+=("📝 Message: _${COMMIT_MSG_ESC}_")
+            lines+=("🔗 Repo: ${REPO_ESC}")
+            MSG=$(printf '%s\n' "${lines[@]}")
           else
             TITLE="❌ Workflow Failed"
             WF_NAME_ESC=$(escape_md_v2 "${WORKFLOW_NAME}")
@@ -51,7 +57,14 @@ jobs:
             WF_URL_ESC=$(escape_md_v2 "${WORKFLOW_URL}")
             HEAD_SHA_ESC=$(escape_md_v2 "${WORKFLOW_HEAD_SHA}")
             ACTOR_ESC=$(escape_md_v2 "${GITHUB_ACTOR}")
-            MSG="*${TITLE}*\n⚙️ Workflow: *${WF_NAME_ESC}*\n👤 Triggered by: \`${ACTOR_ESC}\`\n🆔 Head SHA: \`${HEAD_SHA_ESC}\`\n🚨 Conclusion: *${CONCL_ESC}*\n🔗 Run: ${WF_URL_ESC}"
+            lines=()
+            lines+=("*${TITLE}")
+            lines+=("⚙️ Workflow: *${WF_NAME_ESC}*")
+            lines+=("👤 Triggered by: \`${ACTOR_ESC}\`")
+            lines+=("🆔 Head SHA: \`${HEAD_SHA_ESC}\`")
+            lines+=("🚨 Conclusion: *${CONCL_ESC}*")
+            lines+=("🔗 Run: ${WF_URL_ESC}")
+            MSG=$(printf '%s\n' "${lines[@]}")
           fi
 
           # Send message to Telegram (use MarkdownV2). Use --data-urlencode to preserve formatting.
