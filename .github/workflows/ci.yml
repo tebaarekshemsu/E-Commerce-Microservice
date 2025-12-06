@@ -1,0 +1,61 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        go-version: [1.20.x]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: ${{ matrix.go-version }}
+
+      - name: Show Go version
+        run: go version
+
+      - name: Build services
+        shell: bash
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+          built=0
+          for dir in services/*; do
+            if [ -d "$dir" ]; then
+              if [ -f "$dir/go.mod" ]; then
+                echo "Building module in $dir"
+                pushd "$dir" >/dev/null
+                # build all packages in module
+                go build ./...
+                popd >/dev/null
+                built=$((built+1))
+              else
+                # try to build if any .go files exist at top-level
+                if compgen -G "$dir/*.go" > /dev/null; then
+                  echo "Building package in $dir"
+                  pushd "$dir" >/dev/null
+                  go build
+                  popd >/dev/null
+                  built=$((built+1))
+                else
+                  echo "Skipping $dir (no go.mod and no .go files)"
+                fi
+              fi
+            fi
+          done
+
+          if [ "$built" -eq 0 ]; then
+            echo "No Go services found to build under services/*"
+          else
+            echo "Built $built service(s)"
+          fi
