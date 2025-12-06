@@ -59,3 +59,45 @@ jobs:
           else
             echo "Built $built service(s)"
           fi
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Build Docker images for services
+        shell: bash
+        env:
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+          built=0
+          for dir in services/*; do
+            if [ -d "$dir" ]; then
+              # Try common dockerfile names
+              dockerfile=""
+              # any file ending with 'dockerfile' (e.g. broker-service.dockerfile)
+              if compgen -G "$dir/*dockerfile" > /dev/null; then
+                dockerfile=$(ls $dir/*dockerfile | head -n1)
+              elif [ -f "$dir/Dockerfile" ]; then
+                dockerfile="$dir/Dockerfile"
+              fi
+
+              if [ -n "$dockerfile" ]; then
+                name=$(basename "$dir")
+                short_sha=${GITHUB_SHA:0:7}
+                tag="${GITHUB_REPOSITORY}:${short_sha}-${name}"
+                echo "Building Docker image for $name using $dockerfile -> $tag"
+                # Use buildx to build and load image into the runner's Docker
+                docker buildx build --load -f "$dockerfile" -t "$tag" "$dir"
+                built=$((built+1))
+              else
+                echo "No dockerfile found in $dir, skipping"
+              fi
+            fi
+          done
+
+          if [ "$built" -eq 0 ]; then
+            echo "No Docker images built (no dockerfiles found under services/*)"
+          else
+            echo "Built $built Docker image(s)"
+          fi
