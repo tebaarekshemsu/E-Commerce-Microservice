@@ -35,6 +35,8 @@ jobs:
               if [ -f "$dir/go.mod" ]; then
                 echo "Building module in $dir"
                 pushd "$dir" >/dev/null
+                # download dependencies first
+                go mod download
                 # build all packages in module
                 go build ./...
                 popd >/dev/null

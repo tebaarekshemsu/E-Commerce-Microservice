@@ -1,11 +1,42 @@
+version: '3.8'
+
 services:
-  broker-service:
+  product-service:
     build:
-      context: ./../services/broker-service
-      dockerfile: ./../services/broker-service/broker-service.dockerfile
+      context: ../services/product-service
+      dockerfile: Dockerfile
     restart: always
     ports:
       - "8080:80"
+    environment:
+      - DSN=host=postgres port=5432 user=postgres password=password dbname=product_service sslmode=disable timezone=UTC connect_timeout=5
+    depends_on:
+      - postgres
+
+  payment-service:
+    build:
+      context: ../services/payment-service
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - "8081:80"
+    environment:
+      - DSN=host=postgres port=5432 user=postgres password=password dbname=payment_service sslmode=disable timezone=UTC connect_timeout=5
+    depends_on:
+      - postgres
+
+  postgres:
+    image: 'postgres:14.2'
+    ports:
+      - "5432:5432"
+    restart: always
     deploy:
       mode: replicated
       replicas: 1
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: product_service
+    volumes:
+      - ./db-data/postgres:/var/lib/postgresql/data
+      - ./init-scripts:/docker-entrypoint-initdb.d
