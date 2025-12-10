@@ -1,6 +1,17 @@
 version: '3.8'
 
 services:
+  broker-service:
+    build:
+      context: ../services/broker-service
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - "80:80"
+    depends_on:
+      - product-service
+      - payment-service
+
   product-service:
     build:
       context: ../services/product-service
