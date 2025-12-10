@@ -2,6 +2,7 @@ package main
 
 import (
 	"net/http"
+
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
@@ -17,11 +18,16 @@ func (app *Config) routes() http.Handler {
 		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
 		ExposedHeaders:   []string{"Link"},
 		AllowCredentials: true,
-		MaxAge:           300, 
+		MaxAge:           300,
 	}))
 
 	mux.Use(middleware.Heartbeat("/ping"))
 
 	mux.Post("/", app.Broker)
+
+	// Proxy routes
+	mux.Mount("/product-service", app.ProductServiceProxy())
+	mux.Mount("/payment-service", app.PaymentServiceProxy())
+
 	return mux
 }
