@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        go-version: [1.20.x]
+        go-version: [1.23.x]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -35,6 +35,8 @@ jobs:
               if [ -f "$dir/go.mod" ]; then
                 echo "Building module in $dir"
                 pushd "$dir" >/dev/null
+                # download dependencies first
+                go mod download
                 # build all packages in module
                 go build ./...
                 popd >/dev/null
@@ -70,6 +72,10 @@ jobs:
         run: |
           set -euo pipefail
           shopt -s nullglob
+          
+          # Convert repository name to lowercase for Docker tagging
+          repo_lower=$(echo "$GITHUB_REPOSITORY" | tr '[:upper:]' '[:lower:]')
+          
           built=0
           for dir in services/*; do
             if [ -d "$dir" ]; then
@@ -85,7 +91,7 @@ jobs:
               if [ -n "$dockerfile" ]; then
                 name=$(basename "$dir")
                 short_sha=${GITHUB_SHA:0:7}
-                tag="${GITHUB_REPOSITORY}:${short_sha}-${name}"
+                tag="${repo_lower}:${short_sha}-${name}"
                 echo "Building Docker image for $name using $dockerfile -> $tag"
                 # Use buildx to build and load image into the runner's Docker
                 docker buildx build --load -f "$dockerfile" -t "$tag" "$dir"
