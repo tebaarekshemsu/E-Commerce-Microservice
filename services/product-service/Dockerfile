@@ -3,9 +3,8 @@ FROM golang:1.20-alpine AS builder
 WORKDIR /app
 
 COPY go.mod ./
-# COPY go.sum ./ 
-# go mod download will fail without network, but assuming it works in build environment
-# RUN go mod download
+COPY go.sum ./ 
+RUN go mod download
 
 COPY . .
 

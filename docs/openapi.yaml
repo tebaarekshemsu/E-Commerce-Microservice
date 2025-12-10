@@ -49,7 +49,7 @@ paths:
               schema:
                 type: object
                 properties:
-                  token: 
+                  token:
                     type: string
                     example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
   /auth/me:
@@ -69,19 +69,22 @@ paths:
           description: Unauthorized/Invalid token
 
   # --- PRODUCT SERVICE ---
-  /products:
+  /product-service/api/products:
     get:
       tags: [Products]
-      summary: List all products
+      summary: List all productse
       responses:
         "200":
           description: A list of products.
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/Product"
+                type: object
+                properties:
+                  collection:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Product"
     post:
       tags: [Products]
       summary: Create a new product (Admin access required)
@@ -98,7 +101,8 @@ paths:
           description: Product created successfully.
         "403":
           description: Forbidden (Requires Admin Role)
-  /products/{id}:
+
+  /product-service/api/products/{id}:
     get:
       tags: [Products]
       summary: Get product details by ID
@@ -116,6 +120,138 @@ paths:
                 $ref: "#/components/schemas/Product"
         "404":
           description: Product not found
+    put:
+      tags: [Products]
+      summary: Update product details by ID (Admin access required)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProductCreateRequest"
+      responses:
+        "200":
+          description: Product updated successfully.
+        "403":
+          description: Forbidden (Requires Admin Role)
+        "404":
+          description: Product not found
+    delete:
+      tags: [Products]
+      summary: Delete product by ID (Admin access required)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        "200":
+          description: Product deleted successfully.
+        "403":
+          description: Forbidden (Requires Admin Role)
+        "404":
+          description: Product not found
+
+  /product-service/api/categories:
+    get:
+      tags: [Products]
+      summary: List all categories
+      responses:
+        "200":
+          description: A list of categories.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  collection:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Category"
+    post:
+      tags: [Products]
+      summary: Create a new category (Admin access required)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CategoryCreateRequest"
+      responses:
+        "201":
+          description: Category created successfully.
+        "403":
+          description: Forbidden (Requires Admin Role)
+
+  /product-service/api/categories/{id}:
+    get:
+      tags: [Products]
+      summary: Get category details by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        "200":
+          description: Category details found.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Category"
+        "404":
+          description: Category not found
+    put:
+      tags: [Products]
+      summary: Update category details by ID (Admin access required)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CategoryCreateRequest"
+      responses:
+        "200":
+          description: Category updated successfully.
+        "403":
+          description: Forbidden (Requires Admin Role)
+        "404":
+          description: Category not found
+    delete:
+      tags: [Products]
+      summary: Delete category by ID (Admin access required)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        "200":
+          description: Category deleted successfully.
+        "403":
+          description: Forbidden (Requires Admin Role)
+        "404":
+          description: Category not found
 
   # --- ORDER SERVICE ---
   /orders:
@@ -233,17 +369,37 @@ components:
     Product:
       type: object
       properties:
-        id: { type: integer, example: 550 }
-        name: { type: string, example: "Wireless Keyboard" }
-        price: { type: number, format: float, example: 45.99 }
-        stock_level: { type: integer, example: 120 }
+        productId: { type: integer, example: 550 }
+        productTitle: { type: string, example: "Wireless Keyboard" }
+        imageUrl: { type: string, example: "http://example.com/image.jpg" }
+        sku: { type: string, example: "KB-123" }
+        priceUnit: { type: number, format: float, example: 45.99 }
+        quantity: { type: integer, example: 120 }
+        category: { $ref: "#/components/schemas/Category" }
+    Category:
+      type: object
+      properties:
+        categoryId: { type: integer, example: 10 }
+        categoryTitle: { type: string, example: "Electronics" }
+        imageUrl: { type: string, example: "http://example.com/cat.jpg" }
+        parentCategory: { $ref: "#/components/schemas/Category" }
     ProductCreateRequest:
       type: object
-      required: [name, price, stock_level]
+      required: [productTitle, priceUnit, quantity]
       properties:
-        name: { type: string }
-        price: { type: number, format: float }
-        stock_level: { type: integer }
+        productTitle: { type: string }
+        imageUrl: { type: string }
+        sku: { type: string }
+        priceUnit: { type: number, format: float }
+        quantity: { type: integer }
+        categoryId: { type: integer }
+    CategoryCreateRequest:
+      type: object
+      required: [categoryTitle]
+      properties:
+        categoryTitle: { type: string }
+        imageUrl: { type: string }
+        parentCategoryId: { type: integer }
     OrderCreateRequest:
       type: object
       required: [items]
@@ -268,7 +424,7 @@ components:
       type: object
       required: [recipient, subject, body]
       properties:
-        recipient: 
+        recipient:
           type: string
           format: email
           description: User email or ID.
