@@ -1,5 +1,3 @@
--- The product_service database is created automatically by POSTGRES_DB in docker-compose
--- We just need to switch to it and create the tables
 
 \c product_service
 
