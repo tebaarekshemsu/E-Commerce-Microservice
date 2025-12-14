@@ -1,0 +1,31 @@
+version: '3'
+services:
+  order-service-container:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: selimhorri/order-service-ecommerce-node:0.1.0
+    ports:
+      - 8300:8300
+    environment:
+      - NODE_ENV=development
+      - PORT=8300
+      - MONGODB_URI=mongodb://mongodb:27017/ecommerce_dev_db
+      - DB_HOST=mongodb
+      - DB_PORT=27017
+      - DB_NAME=ecommerce_dev_db
+      - USER_SERVICE_URL=http://localhost:8100/user-service/api/users
+      - CONTEXT_PATH=/order-service
+    depends_on:
+      - mongodb
+  mongodb:
+    image: mongo:7.0
+    ports:
+      - 27017:27017
+    volumes:
+      - mongodb_data:/data/db
+    environment:
+      - MONGO_INITDB_DATABASE=ecommerce_dev_db
+
+volumes:
+  mongodb_data:
