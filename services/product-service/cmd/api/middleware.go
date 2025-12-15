@@ -25,7 +25,7 @@ func (app *Config) Auth(next http.Handler) http.Handler {
 		token := headerParts[1]
 
 		// For demonstration, we consider "admin-token" as a valid admin token
-		// In next Phase we will comunicate with auth-service to validate tokens
+		// In next Phase we will communicate with auth-service to validate tokens
 		if token != "admin-token" {
 			app.errorJSON(w, errors.New("unauthorized - admin access required"), http.StatusUnauthorized)
 			return

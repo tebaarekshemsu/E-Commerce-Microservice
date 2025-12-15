@@ -696,24 +696,17 @@ components:
     UserDetail:
       type: object
       properties:
-    NotificationRequest:
-      type: object
-      required: [recipient, subject, body]
-      properties:
-        recipient:
-          type: string
-          format: email
-          description: User email or ID.
-        subject: { type: string }
-        body: { type: string }
-        type: { type: string, enum: [email, sms, push], example: email }
-    Payment:
+        id: { type: integer, example: 101 }
+        email: { type: string, format: email }
+        username: { type: string, nullable: true }
+    Product:
       type: object
       properties:
-        paymentId: { type: integer, example: 123 }
-        orderId: { type: integer, example: 456 }
-        isPayed: { type: boolean, example: true }
-        paymentStatus: { type: string, example: "completed" }
+        productId: { type: integer, example: 550 }
+        productTitle: { type: string, example: "Wireless Keyboard" }
+        imageUrl: { type: string, example: "http://example.com/image.jpg" }
+        sku: { type: string, example: "KB-123" }
+        priceUnit: { type: number, format: float, example: 45.99 }
         quantity: { type: integer, example: 120 }
         category: { $ref: "#/components/schemas/Category" }
     Category:

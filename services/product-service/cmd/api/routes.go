@@ -22,7 +22,6 @@ func (app *Config) routes() http.Handler {
 
 	mux.Use(middleware.Heartbeat("/ping"))
 
-	// Match Java context-path /product-service
 	mux.Route("/product-service", func(r chi.Router) {
 		r.Route("/api/products", func(r chi.Router) {
 			r.Get("/", app.GetAllProducts)
