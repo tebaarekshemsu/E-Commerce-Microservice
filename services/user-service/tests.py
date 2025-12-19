@@ -1,12 +1,14 @@
 from django.test import TestCase
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from rest_framework.test import APIClient
 from django.urls import reverse
+
+User = get_user_model()
 
 class AuthTests(TestCase):
     def setUp(self):
         self.client = APIClient()
-        self.user = User.objects.create_user(username='testuser', password='testpassword')
+        self.user = User.objects.create_user(username='testuser', password='testpassword', email='test@example.com')
         self.token_url = reverse('token_obtain_pair')
         self.verify_url = reverse('token_verify')
 
