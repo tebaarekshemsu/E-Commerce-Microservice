@@ -29,6 +29,7 @@ func (app *Config) routes() http.Handler {
 	mux.Mount("/product-service", app.ProductServiceProxy())
 	mux.Mount("/payment-service", app.PaymentServiceProxy())
 	mux.Mount("/order-service", app.OrderServiceProxy())
+	mux.Mount("/notification-service", app.NotificationServiceProxy())
 
 	return mux
 }

@@ -50,6 +50,38 @@ services:
       - product-service
       - payment-service
 
+  notification-service:
+    build:
+      context: ../services/notification-service
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - "8084:8080"
+    environment:
+      - SMTP_HOST=${SMTP_HOST}
+      - SMTP_PORT=${SMTP_PORT}
+      - SMTP_USERNAME=${SMTP_USERNAME}
+      - SMTP_PASSWORD=${SMTP_PASSWORD}
+      - TWILIO_ACCOUNT_SID=${TWILIO_ACCOUNT_SID}
+      - TWILIO_AUTH_TOKEN=${TWILIO_AUTH_TOKEN}
+      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672/
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - DB_PASSWORD=password
+      - DB_NAME=notifications
+    depends_on:
+      - rabbitmq
+      - postgres
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - ./db-data/rabbitmq:/var/lib/rabbitmq
+
   mongo:
     image: mongo:7.0
     restart: always
