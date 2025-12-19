@@ -153,3 +153,96 @@ func (h *NotificationHandler) sendLowStockAlert(event models.InventoryEvent) err
 
 	return h.emailService.Send(notification)
 }
+
+func (h *NotificationHandler) sendShippingNotification(event models.OrderEvent) error {
+	notification := &models.Notification{
+		ID:         uuid.New().String(),
+		UserID:     event.UserID,
+		Type:       models.NotificationTypeEmail,
+		Channel:    "email",
+		Recipient:  event.Email,
+		Subject:    fmt.Sprintf("Your Order #%s has Shipped!", event.OrderID),
+		TemplateID: "order_shipped",
+		Metadata: map[string]any{
+			"order_id": event.OrderID,
+			"items":    event.Items,
+		},
+		Status:    models.StatusPending,
+		CreatedAt: time.Now(),
+	}
+
+	if err := h.emailService.Send(notification); err != nil {
+		log.Printf("Failed to send shipping notification: %v", err)
+		return err
+	}
+	return nil
+}
+
+func (h *NotificationHandler) sendDeliveryNotification(event models.OrderEvent) error {
+	notification := &models.Notification{
+		ID:         uuid.New().String(),
+		UserID:     event.UserID,
+		Type:       models.NotificationTypeEmail,
+		Channel:    "email",
+		Recipient:  event.Email,
+		Subject:    fmt.Sprintf("Order #%s Delivered", event.OrderID),
+		TemplateID: "order_delivered",
+		Metadata: map[string]any{
+			"order_id": event.OrderID,
+		},
+		Status:    models.StatusPending,
+		CreatedAt: time.Now(),
+	}
+
+	if err := h.emailService.Send(notification); err != nil {
+		log.Printf("Failed to send delivery notification: %v", err)
+		return err
+	}
+	return nil
+}
+
+func (h *NotificationHandler) sendCancellationNotification(event models.OrderEvent) error {
+	notification := &models.Notification{
+		ID:         uuid.New().String(),
+		UserID:     event.UserID,
+		Type:       models.NotificationTypeEmail,
+		Channel:    "email",
+		Recipient:  event.Email,
+		Subject:    fmt.Sprintf("Order #%s Cancelled", event.OrderID),
+		TemplateID: "order_cancelled",
+		Metadata: map[string]any{
+			"order_id": event.OrderID,
+		},
+		Status:    models.StatusPending,
+		CreatedAt: time.Now(),
+	}
+
+	if err := h.emailService.Send(notification); err != nil {
+		log.Printf("Failed to send cancellation notification: %v", err)
+		return err
+	}
+	return nil
+}
+
+func (h *NotificationHandler) sendPasswordResetEmail(event models.UserEvent) error {
+	notification := &models.Notification{
+		ID:         uuid.New().String(),
+		UserID:     event.UserID,
+		Type:       models.NotificationTypeEmail,
+		Channel:    "email",
+		Recipient:  event.Email,
+		Subject:    "Password Reset Request",
+		TemplateID: "password_reset",
+		Metadata: map[string]any{
+			"reset_link": event.Metadata["reset_link"],
+		},
+		Status:    models.StatusPending,
+		CreatedAt: time.Now(),
+	}
+
+	if err := h.emailService.Send(notification); err != nil {
+		log.Printf("Failed to send password reset email: %v", err)
+		return err
+	}
+	return nil
+}
