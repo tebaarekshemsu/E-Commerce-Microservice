@@ -4,28 +4,28 @@ import express from "express";
 import cors from "cors";
 import morgan from "morgan";
 import { connectDB } from "./src/config/database.js";
-import orderRoutes from "./src/routes/orderRoutes.js";
+import cartroutes from "./src/routes/cart.routes.js";
 const app = express();
 const PORT = process.env.PORT || 8300;
+
 // Middleware
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan("dev"));
+
 // Health check endpoint
 app.get("/", (req, res) => {
-  res.json({ message: "Order controller responding!!" });
+  res.json({ message: "Cart controller responding!!" });
 });
 // Routes
-app.use(`order-service/api/orders`, orderRoutes);
-// Error handling middleware
-app.use(errorHandler);
+app.use("cart_service/api/orders", cartroutes);
 // Database connection and server start
 const startServer = async () => {
   try {
     await connectDB();
-    app.listen(PORT, () => {
-      console.log(`Order Service is running on port ${PORT}`);
+    app.listen(PORT, "0.0.0.0", () => {
+      console.log(`Cart Service is running on port ${PORT}`);
     });
   } catch (error) {
     console.error("Unable to start the server:", error);
