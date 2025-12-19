@@ -41,7 +41,7 @@ services:
       dockerfile: Dockerfile
     restart: always
     ports:
-      - "8082:80"   
+      - "8083:80"   
     environment:
       - MONGO_URI=mongodb://mongo:27017/order_service
       - USER_SERVICE_URL=http://localhost:8100/user-service/api/users  

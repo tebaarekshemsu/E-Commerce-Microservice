@@ -28,6 +28,7 @@ func (app *Config) routes() http.Handler {
 	// Proxy routes
 	mux.Mount("/product-service", app.ProductServiceProxy())
 	mux.Mount("/payment-service", app.PaymentServiceProxy())
+	mux.Mount("/order-service", app.OrderServiceProxy())
 
 	return mux
 }
