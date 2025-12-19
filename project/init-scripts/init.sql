@@ -100,5 +100,3 @@ CREATE TABLE user_notification_preferences (
 -- Now create the user_service database
 CREATE DATABASE user_service_db;
 GRANT ALL PRIVILEGES ON DATABASE user_service_db TO postgres;
-
-CREATE DATABASE user_service_db;

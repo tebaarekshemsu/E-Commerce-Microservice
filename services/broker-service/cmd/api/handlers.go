@@ -25,7 +25,7 @@ func (app *Config) PaymentServiceProxy() http.Handler {
 	return httputil.NewSingleHostReverseProxy(target)
 }
 func (app *Config) UserServiceProxy() http.Handler {
-	target, _ := url.Parse("http://user-service:8000")
+	target, _ := url.Parse("http://user-service")
 	return httputil.NewSingleHostReverseProxy(target)
 }
 func (app *Config) OrderServiceProxy() http.Handler {
