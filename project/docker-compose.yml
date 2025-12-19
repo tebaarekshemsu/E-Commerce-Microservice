@@ -30,7 +30,7 @@ services:
       dockerfile: Dockerfile
     restart: always
     ports:
-      - "8081:80"
+      - "8085:80"
     environment:
       - DSN=host=postgres port=5432 user=postgres password=password dbname=payment_service sslmode=disable timezone=UTC connect_timeout=5
     depends_on:
@@ -44,11 +44,32 @@ services:
       - "8083:80"   
     environment:
       - MONGO_URI=mongodb://mongo:27017/order_service
-      - USER_SERVICE_URL=http://localhost:8100/user-service/api/users  
+      - USER_SERVICE_URL=http://user-service:8000/api/users  
     depends_on:
       - mongo
       - product-service
       - payment-service
+      - user-service
+
+  user-service:
+    build:
+      context: ../services/user-service
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - "8001:8000"
+    volumes:
+      - ../services/user-service:/usr/src/app
+    command: >
+      sh -c "python manage.py migrate &&
+             gunicorn --bind 0.0.0.0:8000 config.wsgi:application"
+    environment:
+      - DEBUG=False
+      - SECRET_KEY=django-insecure-prod-key
+      - DATABASE_URL=postgres://postgres:password@postgres:5432/user_service_db
+      - ALLOWED_HOSTS=user-service,localhost
+    depends_on:
+      - postgres
 
   notification-service:
     build:
