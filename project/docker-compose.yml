@@ -30,7 +30,7 @@ services:
       dockerfile: Dockerfile
     restart: always
     ports:
-      - "8081:80"
+      - "8085:80"
     environment:
       - DSN=host=postgres port=5432 user=postgres password=password dbname=payment_service sslmode=disable timezone=UTC connect_timeout=5
     depends_on:
@@ -58,6 +58,8 @@ services:
     restart: always
     ports:
       - "8001:8000"
+    volumes:
+      - ../services/user-service:/usr/src/app
     command: >
       sh -c "python manage.py migrate &&
              gunicorn --bind 0.0.0.0:8000 config.wsgi:application"
