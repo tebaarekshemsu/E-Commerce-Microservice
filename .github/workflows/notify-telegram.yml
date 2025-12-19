@@ -9,8 +9,8 @@ on:
 
 jobs:
   notify:
-    # run for pushes OR for completed workflow runs that failed
-    if: ${{ github.event_name == 'push' || (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'failure') }}
+    # run for pushes OR for completed workflow runs (success or failure)
+    if: ${{ github.event_name == 'push' || github.event_name == 'workflow_run' }}
     runs-on: ubuntu-latest
     env:
       TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
@@ -51,7 +51,11 @@ jobs:
             lines+=("🔗 Repo: ${REPO_ESC}")
             MSG=$(printf '%s\n' "${lines[@]}")
           else
-            TITLE="❌ Workflow Failed"
+            if [ "$WORKFLOW_CONCLUSION" = "success" ]; then
+              TITLE="✅ Workflow Succeeded"
+            else
+              TITLE="❌ Workflow Failed"
+            fi
             WF_NAME_ESC=$(escape_md_v2 "${WORKFLOW_NAME}")
             CONCL_ESC=$(escape_md_v2 "${WORKFLOW_CONCLUSION}")
             WF_URL_ESC=$(escape_md_v2 "${WORKFLOW_URL}")
