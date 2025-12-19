@@ -62,12 +62,13 @@ type Item struct {
 }
 
 type UserEvent struct {
-	EventType string    `json:"event_type"`
-	UserID    string    `json:"user_id"`
-	Email     string    `json:"email"`
-	Phone     string    `json:"phone,omitempty"`
-	Name      string    `json:"name"`
-	Timestamp time.Time `json:"timestamp"`
+	EventType string         `json:"event_type"`
+	UserID    string         `json:"user_id"`
+	Email     string         `json:"email"`
+	Phone     string         `json:"phone,omitempty"`
+	Name      string         `json:"name"`
+	Metadata  map[string]any `json:"metadata,omitempty"`
+	Timestamp time.Time      `json:"timestamp"`
 }
 
 type InventoryEvent struct {
