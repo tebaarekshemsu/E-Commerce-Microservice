@@ -1144,7 +1144,7 @@ components:
           type: integer
           nullable: true
         user:
-          $ref: "#/components/schemas/User"
+          $ref: "#/components/schemas/CartUser"
 
     CartReference:
       type: object
@@ -1154,7 +1154,7 @@ components:
           description: Cart ID (Mongo ObjectId)
           example: "6650b10dc25f1f3e0a654321"
 
-    User:
+    CartUser:
       type: object
       properties:
         userId: { type: integer, example: 42 }
