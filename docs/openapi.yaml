@@ -21,89 +21,89 @@ paths:
     post:
       operationId: auth_register_create
       tags:
-      - Auth
+        - Auth
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UserRegistrationRequest'
+              $ref: "#/components/schemas/UserRegistrationRequest"
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/UserRegistrationRequest'
+              $ref: "#/components/schemas/UserRegistrationRequest"
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/UserRegistrationRequest'
+              $ref: "#/components/schemas/UserRegistrationRequest"
         required: true
       responses:
-        '201':
+        "201":
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UserRegistration'
-          description: ''
+                $ref: "#/components/schemas/UserRegistration"
+          description: ""
   /user-service/api/auth/profile/:
     get:
       operationId: auth_profile_retrieve
       tags:
-      - Auth
+        - Auth
       security:
-      - jwtAuth: []
+        - jwtAuth: []
       responses:
-        '200':
+        "200":
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
-          description: ''
+                $ref: "#/components/schemas/User"
+          description: ""
     put:
       operationId: auth_profile_update
       tags:
-      - Auth
+        - Auth
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UserRequest'
+              $ref: "#/components/schemas/UserRequest"
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/UserRequest'
+              $ref: "#/components/schemas/UserRequest"
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/UserRequest'
+              $ref: "#/components/schemas/UserRequest"
         required: true
       security:
-      - jwtAuth: []
+        - jwtAuth: []
       responses:
-        '200':
+        "200":
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
-          description: ''
+                $ref: "#/components/schemas/User"
+          description: ""
     patch:
       operationId: auth_profile_partial_update
       tags:
-      - Auth
+        - Auth
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchedUserRequest'
+              $ref: "#/components/schemas/PatchedUserRequest"
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/PatchedUserRequest'
+              $ref: "#/components/schemas/PatchedUserRequest"
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/PatchedUserRequest'
+              $ref: "#/components/schemas/PatchedUserRequest"
       security:
-      - jwtAuth: []
+        - jwtAuth: []
       responses:
-        '200':
+        "200":
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
-          description: ''
+                $ref: "#/components/schemas/User"
+          description: ""
   /user-service/api/token/:
     post:
       operationId: token_create
@@ -111,26 +111,26 @@ paths:
         Takes a set of user credentials and returns an access and refresh JSON web
         token pair to prove the authentication of those credentials.
       tags:
-      - Auth
+        - Auth
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/TokenObtainPairRequest'
+              $ref: "#/components/schemas/TokenObtainPairRequest"
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/TokenObtainPairRequest'
+              $ref: "#/components/schemas/TokenObtainPairRequest"
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/TokenObtainPairRequest'
+              $ref: "#/components/schemas/TokenObtainPairRequest"
         required: true
       responses:
-        '200':
+        "200":
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/TokenObtainPair'
-          description: ''
+                $ref: "#/components/schemas/TokenObtainPair"
+          description: ""
   /user-service/api/token/refresh/:
     post:
       operationId: token_refresh_create
@@ -138,26 +138,26 @@ paths:
         Takes a refresh type JSON web token and returns an access type JSON web
         token if the refresh token is valid.
       tags:
-      - Auth
+        - Auth
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/TokenRefreshRequest'
+              $ref: "#/components/schemas/TokenRefreshRequest"
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/TokenRefreshRequest'
+              $ref: "#/components/schemas/TokenRefreshRequest"
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/TokenRefreshRequest'
+              $ref: "#/components/schemas/TokenRefreshRequest"
         required: true
       responses:
-        '200':
+        "200":
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/TokenRefresh'
-          description: ''
+                $ref: "#/components/schemas/TokenRefresh"
+          description: ""
   /user-service/api/token/verify/:
     post:
       operationId: token_verify_create
@@ -165,21 +165,21 @@ paths:
         Takes a token and indicates if it is valid.  This view provides no
         information about a token's fitness for a particular use.
       tags:
-      - Auth
+        - Auth
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/TokenVerifyRequest'
+              $ref: "#/components/schemas/TokenVerifyRequest"
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/TokenVerifyRequest'
+              $ref: "#/components/schemas/TokenVerifyRequest"
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/TokenVerifyRequest'
+              $ref: "#/components/schemas/TokenVerifyRequest"
         required: true
       responses:
-        '200':
+        "200":
           description: No response body
 
   # --- PRODUCT SERVICE ---
@@ -813,8 +813,8 @@ components:
           type: string
           maxLength: 100
       required:
-      - city
-      - full_address
+        - city
+        - full_address
     AddressRequest:
       type: object
       properties:
@@ -831,15 +831,16 @@ components:
           minLength: 1
           maxLength: 100
       required:
-      - city
-      - full_address
+        - city
+        - full_address
     PatchedUserRequest:
       type: object
       properties:
         username:
           type: string
           minLength: 1
-          description: Required. 150 characters or fewer. Letters, digits and @/./+/-/_
+          description:
+            Required. 150 characters or fewer. Letters, digits and @/./+/-/_
             only.
           pattern: ^[\w.@+-]+$
           maxLength: 150
@@ -863,11 +864,11 @@ components:
           nullable: true
           maxLength: 255
         role:
-          $ref: '#/components/schemas/RoleEnum'
+          $ref: "#/components/schemas/RoleEnum"
     RoleEnum:
       enum:
-      - ADMIN
-      - USER
+        - ADMIN
+        - USER
       type: string
       description: |-
         * `ADMIN` - Admin
@@ -882,8 +883,8 @@ components:
           type: string
           readOnly: true
       required:
-      - access
-      - refresh
+        - access
+        - refresh
     TokenObtainPairRequest:
       type: object
       properties:
@@ -896,8 +897,8 @@ components:
           writeOnly: true
           minLength: 1
       required:
-      - password
-      - username
+        - password
+        - username
     TokenRefresh:
       type: object
       properties:
@@ -905,7 +906,7 @@ components:
           type: string
           readOnly: true
       required:
-      - access
+        - access
     TokenRefreshRequest:
       type: object
       properties:
@@ -914,7 +915,7 @@ components:
           writeOnly: true
           minLength: 1
       required:
-      - refresh
+        - refresh
     TokenVerifyRequest:
       type: object
       properties:
@@ -923,7 +924,7 @@ components:
           writeOnly: true
           minLength: 1
       required:
-      - token
+        - token
     User:
       type: object
       properties:
@@ -932,7 +933,8 @@ components:
           readOnly: true
         username:
           type: string
-          description: Required. 150 characters or fewer. Letters, digits and @/./+/-/_
+          description:
+            Required. 150 characters or fewer. Letters, digits and @/./+/-/_
             only.
           pattern: ^[\w.@+-]+$
           maxLength: 150
@@ -955,17 +957,17 @@ components:
           nullable: true
           maxLength: 255
         role:
-          $ref: '#/components/schemas/RoleEnum'
+          $ref: "#/components/schemas/RoleEnum"
         addresses:
           type: array
           items:
-            $ref: '#/components/schemas/Address'
+            $ref: "#/components/schemas/Address"
           readOnly: true
       required:
-      - addresses
-      - email
-      - id
-      - username
+        - addresses
+        - email
+        - id
+        - username
     UserRegistration:
       type: object
       properties:
@@ -975,13 +977,14 @@ components:
           maxLength: 254
         username:
           type: string
-          description: Required. 150 characters or fewer. Letters, digits and @/./+/-/_
+          description:
+            Required. 150 characters or fewer. Letters, digits and @/./+/-/_
             only.
           pattern: ^[\w.@+-]+$
           maxLength: 150
       required:
-      - email
-      - username
+        - email
+        - username
     UserRegistrationRequest:
       type: object
       properties:
@@ -993,7 +996,8 @@ components:
         username:
           type: string
           minLength: 1
-          description: Required. 150 characters or fewer. Letters, digits and @/./+/-/_
+          description:
+            Required. 150 characters or fewer. Letters, digits and @/./+/-/_
             only.
           pattern: ^[\w.@+-]+$
           maxLength: 150
@@ -1007,17 +1011,18 @@ components:
           writeOnly: true
           minLength: 1
       required:
-      - confirm_password
-      - email
-      - password
-      - username
+        - confirm_password
+        - email
+        - password
+        - username
     UserRequest:
       type: object
       properties:
         username:
           type: string
           minLength: 1
-          description: Required. 150 characters or fewer. Letters, digits and @/./+/-/_
+          description:
+            Required. 150 characters or fewer. Letters, digits and @/./+/-/_
             only.
           pattern: ^[\w.@+-]+$
           maxLength: 150
@@ -1041,10 +1046,10 @@ components:
           nullable: true
           maxLength: 255
         role:
-          $ref: '#/components/schemas/RoleEnum'
+          $ref: "#/components/schemas/RoleEnum"
       required:
-      - email
-      - username
+        - email
+        - username
     Product:
       type: object
       properties:
