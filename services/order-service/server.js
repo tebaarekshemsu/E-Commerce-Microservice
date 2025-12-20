@@ -5,6 +5,7 @@ import cors from "cors";
 import morgan from "morgan";
 import { connectDB } from "./src/config/database.js";
 import orderRoutes from "./src/routes/orderRoutes.js";
+import errorHandler from "./src/middlewares/errorHandler.js";
 const app = express();
 const PORT = process.env.PORT || 8300;
 // Middleware
