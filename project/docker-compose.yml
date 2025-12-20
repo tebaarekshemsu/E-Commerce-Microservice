@@ -41,14 +41,12 @@ services:
       dockerfile: Dockerfile
     restart: always
     ports:
-      - "8083:80"   
+      - "8083:5002"   
     environment:
-      - MONGO_URI=mongodb://mongo:27017/order_service
+      - MONGO_URI=mongodb://mongo:27017/orderdb
       - USER_SERVICE_URL=http://user-service:8000/api/users  
     depends_on:
       - mongo
-      - product-service
-      - payment-service
   user-service:
     build:
       context: ../services/user-service
@@ -74,13 +72,12 @@ services:
       dockerfile: Dockerfile
     restart: always
     ports:
-      - "8082:80"
+      - "8086:5001"
     environment:
-      - MONGO_URI=mongodb://mongo:27017/cart_service
+      - MONGO_URI=mongodb://mongo:27017/cartdb
       - PRODUCT_SERVICE_URL=http://product-service:80/api/products
     depends_on:
      - mongo
-     - product-service
 
   notification-service:
     build:
