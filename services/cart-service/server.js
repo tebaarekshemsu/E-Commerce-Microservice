@@ -19,7 +19,7 @@ app.get("/", (req, res) => {
   res.json({ message: "Cart controller responding!!" });
 });
 // Routes
-app.use("cart_service/api/orders", cartroutes);
+app.use("/cart_service/api/cart", cartroutes);
 // Database connection and server start
 const startServer = async () => {
   try {

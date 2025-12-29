@@ -1,37 +1,43 @@
-// cart.model.js
 import mongoose from "mongoose";
 
 const cartItemSchema = new mongoose.Schema(
   {
-	productId: { type: String, required: true },
-	quantity: { type: Number, required: true },
+    productId: { type: String, required: true },
+    quantity: { type: Number, required: true, min: 1 },
 
-	// snapshot (important!)
-	price: { type: Number, required: true },
-	name: { type: String },
-	image: { type: String },
+    price: { type: Number, required: true },
+    name: String,
+    image: String,
   },
   { _id: false }
 );
 
 const cartSchema = new mongoose.Schema(
   {
-	userId: {
-	  type: String,
-	  required: true,
-	  index: true,
-	  unique: true,
-	},
+    userId: {
+      type: String,
+      required: true,
+      immutable: true,
+      index: true,
+      unique: true,
+    },
 
-	items: [cartItemSchema],
+    items: [cartItemSchema],
 
-	totalQuantity: { type: Number, default: 0 },
-	totalPrice: { type: Number, default: 0 },
+    totalQuantity: { type: Number, default: 0 },
+    totalPrice: { type: Number, default: 0 },
 
-	expiresAt: {
-	  type: Date,
-	  index: { expireAfterSeconds: 0 },
-	},
+    status: {
+      type: String,
+      enum: ["ACTIVE", "CHECKED_OUT", "ABANDONED"],
+      default: "ACTIVE",
+      index: true,
+    },
+
+    expiresAt: {
+      type: Date,
+      index: { expireAfterSeconds: 0 },
+    },
   },
   { timestamps: true }
 );

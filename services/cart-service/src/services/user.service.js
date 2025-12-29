@@ -1,8 +1,8 @@
 import { productClient } from "../grpc-client.js";
 
-export const getProduct = (productId) => {
+export const getUser = (userId) => {
   return new Promise((resolve, reject) => {
-    productClient.GetProduct({ productId }, (err, response) => {
+    userClient.GetUser({ userId }, (err, response) => {
       if (err) return reject(err);
       resolve(response);
     });
