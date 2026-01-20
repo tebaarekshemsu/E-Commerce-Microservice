@@ -1,16 +1,16 @@
-# Use official Node.js LTS alpine image
+# Use official Node.js LTS Alpine image
 FROM node:18-alpine
 
 # Set working directory
 WORKDIR /home/app
 
-# Copy only package files first (for caching)
+# Copy package files
 COPY package*.json ./
 
-# Install dependencies (production only)
+# Install dependencies
 RUN npm ci --only=production
 
-# Copy the rest of the application
+# Copy all application files
 COPY . .
 
 # Expose port

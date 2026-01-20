@@ -1,5 +1,4 @@
 import OrderNotFoundException from '../exceptions/OrderNotFoundException.js';
-import CartNotFoundException from '../exceptions/CartNotFoundException.js';
 
 const errorHandler = (err, req, res, next) => {
   console.error('Error:', err);
@@ -15,7 +14,6 @@ const errorHandler = (err, req, res, next) => {
   
   // Handle custom exceptions
   if (err instanceof OrderNotFoundException || 
-      err instanceof CartNotFoundException ||
       err.name === 'OrderNotFoundException' ||
       err.name === 'CartNotFoundException' ||
       err instanceof Error && err.message.includes('not found')) {

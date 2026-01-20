@@ -1,120 +1,65 @@
-import axios from 'axios';
-import { Cart, Order } from '../models/index.js';
-import CartDto from '../dto/CartDto.js';
-import UserDto from '../dto/UserDto.js';
-import CartMappingHelper from '../helpers/CartMappingHelper.js';
-import CartNotFoundException from '../exceptions/CartNotFoundException.js';
-import constants from '../config/constants.js';
-import mongoose from 'mongoose';
+// src/services/cart.service.js
+import axios from "axios";
+import dotenv from "dotenv";
 
-const { DISCOVERED_DOMAINS_API } = constants;
+dotenv.config();
 
-class CartService {
-  async findAll() {
-    console.log('*** CartDto List, service; fetch all carts *');
-    const carts = await Cart.find().exec();
-    const cartDtos = carts.map(cart => CartMappingHelper.mapToDto(cart));
-    
-    // Fetch user details for each cart
-    const cartsWithUsers = await Promise.all(
-      cartDtos.map(async (cartDto) => {
-        if (cartDto.userId) {
-          try {
-            const userResponse = await axios.get(
-              `${DISCOVERED_DOMAINS_API.USER_SERVICE_API_URL}/${cartDto.userId}`
-            );
-            cartDto.user = new UserDto(userResponse.data);
-          } catch (error) {
-            console.error(`Error fetching user ${cartDto.userId}:`, error.message);
-            // Continue without user data if fetch fails
-          }
-        }
-        return cartDto;
-      })
+const CART_SERVICE_URL = process.env.CART_SERVICE_URL || "http://localhost:5002";
+
+// Get user cart from Cart Service
+const getCart = async (userId) => {
+  try {
+    const response = await axios.get(`${CART_SERVICE_URL}/cart/${userId}`);
+    return response.data;
+  } catch (error) {
+    console.error("Failed to fetch cart", error.response?.data || error.message);
+    throw new Error("Could not fetch cart");
+  }
+};
+
+// Clear user cart in Cart Service
+const clearCart = async (userId) => {
+  try {
+    await axios.delete(`${CART_SERVICE_URL}/cart/clear`, {
+      headers: { "X-User-Id": userId } // or use auth token
+    });
+  } catch (error) {
+    console.error("Failed to clear cart", error.response?.data || error.message);
+    throw new Error("Could not clear cart");
+  }
+};
+
+// Optional: Add item to cart via Cart Service
+const addItem = async (userId, productId, quantity) => {
+  try {
+    const response = await axios.post(
+      `${CART_SERVICE_URL}/cart`,
+      { productId, quantity },
+      { headers: { "X-User-Id": userId } }
     );
-    
-    return cartsWithUsers;
+    return response.data;
+  } catch (error) {
+    console.error("Failed to add item to cart", error.response?.data || error.message);
+    throw new Error("Could not add item to cart");
   }
+};
 
-  async findById(cartId) {
-    console.log('*** CartDto, service; fetch cart by id *');
-    if (!mongoose.Types.ObjectId.isValid(cartId)) {
-      throw new CartNotFoundException(`Cart with id: ${cartId} not found`);
-    }
-    const cart = await Cart.findById(cartId).exec();
-    if (!cart) {
-      throw new CartNotFoundException(`Cart with id: ${cartId} not found`);
-    }
-    const cartDto = CartMappingHelper.mapToDto(cart);
-    // Fetch user details
-    if (cartDto.userId) {
-      try {
-        const userResponse = await axios.get(
-          `${DISCOVERED_DOMAINS_API.USER_SERVICE_API_URL}/${cartDto.userId}`
-        );
-        cartDto.user = new UserDto(userResponse.data);
-      } catch (error) {
-        console.error(`Error fetching user ${cartDto.userId}:`, error.message);
-        // Continue without user data if fetch fails
-      }
-    }
-    
-    return cartDto;
+// Optional: Remove item from cart via Cart Service
+const removeItem = async (userId, productId) => {
+  try {
+    const response = await axios.delete(`${CART_SERVICE_URL}/cart/item/${productId}`, {
+      headers: { "X-User-Id": userId }
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Failed to remove item from cart", error.response?.data || error.message);
+    throw new Error("Could not remove item from cart");
   }
+};
 
-  async save(cartDto) {
-    console.log('*** CartDto, service; save cart *');
-    const cartData = CartMappingHelper.mapToEntity(cartDto);
-    const cart = await Cart.create(cartData);
-    
-    return CartMappingHelper.mapToDto(cart);
-  }
-
-  async update(cartDto) {
-    console.log('*** CartDto, service; update cart *');
-    if (!cartDto.cartId) {
-      throw new CartNotFoundException('Cart ID is required for update');
-    }
-    
-    // First verify the cart exists
-    await this.findById(cartDto.cartId);
-    
-    const cartData = CartMappingHelper.mapToEntity(cartDto);
-    delete cartData.cartId; // Remove cartId from update data
-    const cart = await Cart.findByIdAndUpdate(
-      cartDto.cartId,
-      { $set: cartData },
-      { new: true, runValidators: true }
-    ).exec();
-    
-    return CartMappingHelper.mapToDto(cart);
-  }
-
-  async updateById(cartId, cartDto) {
-    console.log('*** CartDto, service; update cart with cartId *');
-    // First verify the cart exists
-    await this.findById(cartId);
-    
-    const cartData = CartMappingHelper.mapToEntity(cartDto);
-    delete cartData.cartId; // Remove cartId from update data
-    
-    const cart = await Cart.findByIdAndUpdate(
-      cartId,
-      { $set: cartData },
-      { new: true, runValidators: true }
-    ).exec();
-    
-    return CartMappingHelper.mapToDto(cart);
-  }
-
-  async deleteById(cartId) {
-    console.log('*** Void, service; delete cart by id *');
-    await this.findById(cartId); // Verify cart exists
-    
-    await Cart.findByIdAndDelete(cartId);
-    
-    return true;
-  }
-}
-
-export default new CartService();
+export default {
+  getCart,
+  clearCart,
+  addItem,
+  removeItem,
+};
