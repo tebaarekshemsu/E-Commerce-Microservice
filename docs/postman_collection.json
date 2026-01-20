@@ -1,0 +1,263 @@
+{
+  "info": {
+    "name": "E-Commerce Microservices",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_product", "value": "http://localhost:8082/product-service/api" },
+    { "key": "base_order", "value": "http://localhost:8083/order-service/api" },
+    { "key": "base_payment", "value": "http://localhost:8085/payment-service" },
+    { "key": "base_notification", "value": "http://localhost:8084" },
+    { "key": "base_user", "value": "http://localhost:8001/api" },
+    { "key": "auth_token", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "User Service",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "url": { "raw": "{{base_user}}/auth/register/", "host": ["{{base_user}}"], "path": ["auth", "register", ""] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@example.com\",\n  \"username\": \"user1\",\n  \"password\": \"Password123!\",\n  \"confirm_password\": \"Password123!\"\n}"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Login (JWT token)",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "url": { "raw": "{{base_user}}/token/", "host": ["{{base_user}}"], "path": ["token", ""] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"user1\",\n  \"password\": \"Password123!\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const data = pm.response.json();",
+                  "if (data && data.access) { pm.collectionVariables.set('auth_token', data.access); }"
+                ]
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "Refresh Token",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "url": { "raw": "{{base_user}}/token/refresh/", "host": ["{{base_user}}"], "path": ["token", "refresh", ""] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refresh\": \"{{refresh_token}}\"\n}"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Verify Token",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "url": { "raw": "{{base_user}}/token/verify/", "host": ["{{base_user}}"], "path": ["token", "verify", ""] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"{{auth_token}}\"\n}"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Profile (me)",
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Authorization", "value": "Bearer {{auth_token}}" } ],
+            "url": { "raw": "{{base_user}}/auth/profile/", "host": ["{{base_user}}"], "path": ["auth", "profile", ""] }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Product Service",
+      "item": [
+        {
+          "name": "List Products",
+          "request": { "method": "GET", "url": { "raw": "{{base_product}}/products", "host": ["{{base_product}}"], "path": ["products"] } },
+          "response": []
+        },
+        {
+          "name": "Create Product",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{auth_token}}" } ],
+            "url": { "raw": "{{base_product}}/products", "host": ["{{base_product}}"], "path": ["products"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Sample Product\",\n  \"description\": \"Description here\",\n  \"price\": 19.99,\n  \"category_id\": 1\n}"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Product by ID",
+          "request": { "method": "GET", "url": { "raw": "{{base_product}}/products/1", "host": ["{{base_product}}"], "path": ["products", "1"] } },
+          "response": []
+        },
+        {
+          "name": "Update Product",
+          "request": {
+            "method": "PUT",
+            "header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{auth_token}}" } ],
+            "url": { "raw": "{{base_product}}/products/1", "host": ["{{base_product}}"], "path": ["products", "1"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Product\",\n  \"price\": 24.99\n}"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Product",
+          "request": { "method": "DELETE", "header": [ { "key": "Authorization", "value": "Bearer {{auth_token}}" } ], "url": { "raw": "{{base_product}}/products/1", "host": ["{{base_product}}"], "path": ["products", "1"] } },
+          "response": []
+        },
+        {
+          "name": "List Categories",
+          "request": { "method": "GET", "url": { "raw": "{{base_product}}/categories", "host": ["{{base_product}}"], "path": ["categories"] } },
+          "response": []
+        },
+        {
+          "name": "Create Category",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{auth_token}}" } ],
+            "url": { "raw": "{{base_product}}/categories", "host": ["{{base_product}}"], "path": ["categories"] },
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Category A\"\n}" }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Category by ID",
+          "request": { "method": "GET", "url": { "raw": "{{base_product}}/categories/1", "host": ["{{base_product}}"], "path": ["categories", "1"] } },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Order Service",
+      "item": [
+        {
+          "name": "List Orders",
+          "request": { "method": "GET", "url": { "raw": "{{base_order}}/orders", "host": ["{{base_order}}"], "path": ["orders"] } },
+          "response": []
+        },
+        {
+          "name": "Create Order",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "url": { "raw": "{{base_order}}/orders", "host": ["{{base_order}}"], "path": ["orders"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"orderDate\": \"2025-01-01\",\n  \"orderDesc\": \"Sample order\",\n  \"orderFee\": 10.5,\n  \"cart\": { \"cartId\": 1 }\n}"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Order by ID",
+          "request": { "method": "GET", "url": { "raw": "{{base_order}}/orders/1", "host": ["{{base_order}}"], "path": ["orders", "1"] } },
+          "response": []
+        },
+        {
+          "name": "Update Order",
+          "request": {
+            "method": "PUT",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "url": { "raw": "{{base_order}}/orders/1", "host": ["{{base_order}}"], "path": ["orders", "1"] },
+            "body": { "mode": "raw", "raw": "{\n  \"orderDesc\": \"Updated\"\n}" }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Order",
+          "request": { "method": "DELETE", "url": { "raw": "{{base_order}}/orders/1", "host": ["{{base_order}}"], "path": ["orders", "1"] } },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Cart Service (Order context)",
+      "item": [
+        {
+          "name": "List Carts",
+          "request": { "method": "GET", "url": { "raw": "{{base_order}}/carts", "host": ["{{base_order}}"], "path": ["carts"] } },
+          "response": []
+        },
+        {
+          "name": "Create Cart",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "url": { "raw": "{{base_order}}/carts", "host": ["{{base_order}}"], "path": ["carts"] },
+            "body": { "mode": "raw", "raw": "{\n  \"userId\": 1\n}" }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Cart by ID",
+          "request": { "method": "GET", "url": { "raw": "{{base_order}}/carts/1", "host": ["{{base_order}}"], "path": ["carts", "1"] } },
+          "response": []
+        },
+        {
+          "name": "Update Cart",
+          "request": {
+            "method": "PUT",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "url": { "raw": "{{base_order}}/carts/1", "host": ["{{base_order}}"], "path": ["carts", "1"] },
+            "body": { "mode": "raw", "raw": "{\n  \"userId\": 2\n}" }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Cart",
+          "request": { "method": "DELETE", "url": { "raw": "{{base_order}}/carts/1", "host": ["{{base_order}}"], "path": ["carts", "1"] } },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Payment Service",
+      "item": [
+        {
+          "name": "Placeholder: ping or charge",
+          "request": { "method": "GET", "url": { "raw": "{{base_payment}}/ping", "host": ["{{base_payment}}"], "path": ["ping"] } },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Notification Service",
+      "item": [
+        {
+          "name": "Placeholder: health",
+          "request": { "method": "GET", "url": { "raw": "{{base_notification}}/ping", "host": ["{{base_notification}}"], "path": ["ping"] } },
+          "response": []
+        }
+      ]
+    }
+  ]
+}

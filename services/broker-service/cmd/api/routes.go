@@ -25,12 +25,18 @@ func (app *Config) routes() http.Handler {
 
 	mux.Post("/", app.Broker)
 
+	// gRPC-backed endpoints
+	mux.Get("/grpc/product/{id}", app.GetProductGRPC)
+	mux.Get("/grpc/product/{id}/availability", app.CheckProductAvailability)
+	mux.Post("/grpc/payment", app.ProcessPaymentGRPC)
+	mux.Get("/grpc/health", app.GRPCHealth)
+
 	// Proxy routes
 	mux.Mount("/product-service", app.ProductServiceProxy())
 	mux.Mount("/payment-service", app.PaymentServiceProxy())
 	mux.Mount("/order-service", app.OrderServiceProxy())
 	mux.Mount("/notification-service", app.NotificationServiceProxy())
-	mux.Mount("/user-service", http.StripPrefix("/user-service", app. UserServiceProxy()))
+	mux.Mount("/user-service", http.StripPrefix("/user-service", app.UserServiceProxy()))
 
 	return mux
 }

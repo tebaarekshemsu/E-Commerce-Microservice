@@ -6,3 +6,6 @@ django-environ
 drf-spectacular
 psycopg2-binary
 gunicorn
+grpcio>=1.50.0
+grpcio-tools>=1.50.0
+protobuf>=4.21.0

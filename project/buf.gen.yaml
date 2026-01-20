@@ -1,0 +1,16 @@
+version: v1
+plugins:
+  # Generate Go code
+  - plugin: buf.build/protocolbuffers/go
+    out: ../services
+    opt: paths=source_relative
+  # Generate Go gRPC code
+  - plugin: buf.build/grpc/go
+    out: ../services
+    opt: paths=source_relative
+  # Generate Python code (for User Service)
+  - plugin: buf.build/protocolbuffers/python
+    out: ../services/user-service/proto
+  # Generate Python gRPC code
+  - plugin: buf.build/grpc/python
+    out: ../services/user-service/proto

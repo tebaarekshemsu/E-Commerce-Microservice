@@ -22,10 +22,12 @@
     "dotenv": "^16.3.1",
     "cors": "^2.8.5",
     "express-validator": "^7.0.1",
-    "morgan": "^1.10.0"
+    "morgan": "^1.10.0",
+    "@grpc/grpc-js": "^1.9.0",
+    "@grpc/proto-loader": "^0.7.8",
+    "amqplib": "^0.10.3"
   },
   "devDependencies": {
     "nodemon": "^3.0.1"
   }
 }
-

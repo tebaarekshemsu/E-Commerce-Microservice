@@ -5,8 +5,9 @@ import (
 	"net/http"
 	"strconv"
 
+	"product-service/data"
+
 	"github.com/go-chi/chi/v5"
-	"product/data"
 )
 
 type DtoCollectionResponse struct {

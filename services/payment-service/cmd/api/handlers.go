@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"strconv"
 
-	"payment/data"
+	"payment-service/data"
 
 	"github.com/go-chi/chi/v5"
 )

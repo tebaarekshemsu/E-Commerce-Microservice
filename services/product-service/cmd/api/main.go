@@ -11,10 +11,12 @@ import (
 	_ "github.com/jackc/pgconn"
 	_ "github.com/jackc/pgx/v4"
 	_ "github.com/jackc/pgx/v4/stdlib"
-	"product/data"
+	"product-service/data"
+	grpcServer "product-service/grpc"
 )
 
 const webPort = "80"
+const grpcPort = "9001"
 
 type Config struct {
 	Models data.Models
@@ -38,12 +40,19 @@ func main() {
 		Models: data.New(conn),
 	}
 
+	// Start gRPC server in a goroutine
+	go func() {
+		if err := grpcServer.StartGRPCServer(app.Models, grpcPort); err != nil {
+			log.Fatalf("Failed to start gRPC server: %v", err)
+		}
+	}()
+
 	srv := &http.Server{
 		Addr:    fmt.Sprintf(":%s", webPort),
 		Handler: app.routes(),
 	}
 
-	log.Printf("Starting product service on port %s\n", webPort)
+	log.Printf("Starting product service on HTTP port %s and gRPC port %s\n", webPort, grpcPort)
 	err = srv.ListenAndServe()
 	if err != nil {
 		log.Panic(err)

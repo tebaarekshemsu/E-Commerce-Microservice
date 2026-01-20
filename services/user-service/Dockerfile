@@ -32,9 +32,13 @@ COPY --from=builder /usr/local/bin /usr/local/bin
 # Copy project code
 COPY . .
 
-# Collect static files (optional, good practice)
-# RUN python manage.py collectstatic --noinput
+# Create startup script
+RUN echo '#!/bin/bash\n\
+python manage.py migrate &\n\
+python grpc_server.py &\n\
+gunicorn --bind 0.0.0.0:8000 config.wsgi:application\n\
+' > /usr/src/app/start.sh && chmod +x /usr/src/app/start.sh
 
-EXPOSE 8000
+EXPOSE 8000 9003
 
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "config.wsgi:application"]
+CMD ["/usr/src/app/start.sh"]

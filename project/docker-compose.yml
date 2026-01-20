@@ -19,6 +19,7 @@ services:
     restart: always
     ports:
       - "8082:80"
+      - "9001:9001"  # gRPC port
     environment:
       - DSN=host=postgres port=5432 user=postgres password=password dbname=product_service sslmode=disable timezone=UTC connect_timeout=5
     depends_on:
@@ -31,8 +32,10 @@ services:
     restart: always
     ports:
       - "8085:80"
+      - "9002:9002"  # gRPC port
     environment:
       - DSN=host=postgres port=5432 user=postgres password=password dbname=payment_service sslmode=disable timezone=UTC connect_timeout=5
+      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672/
     depends_on:
       - postgres
   order-service:
@@ -44,12 +47,17 @@ services:
       - "8083:80"   
     environment:
       - MONGO_URI=mongodb://mongo:27017/order_service
-      - USER_SERVICE_URL=http://user-service:8000/api/users  
+      - USER_SERVICE_URL=http://user-service:8000/api/users
+      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672/
+      - PRODUCT_SERVICE_GRPC_URL=product-service:9001
+      - PAYMENT_SERVICE_GRPC_URL=payment-service:9002
+      - USER_SERVICE_GRPC_URL=user-service:9003
     depends_on:
       - mongo
       - product-service
       - payment-service
       - user-service
+      - rabbitmq
 
   user-service:
     build:
@@ -58,16 +66,19 @@ services:
     restart: always
     ports:
       - "8001:8000"
+      - "9003:9003"  # gRPC port
     volumes:
       - ../services/user-service:/usr/src/app
     command: >
       sh -c "python manage.py migrate &&
+             python manage.py run_grpc &
              gunicorn --bind 0.0.0.0:8000 config.wsgi:application"
     environment:
       - DEBUG=False
       - SECRET_KEY=django-insecure-prod-key
       - DATABASE_URL=postgres://postgres:password@postgres:5432/user_service_db
       - ALLOWED_HOSTS=user-service,localhost
+      - GRPC_PORT=9003
     depends_on:
       - postgres
 
