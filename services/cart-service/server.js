@@ -18,7 +18,7 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 const REST_PORT = process.env.PORT || 5001;
-const GRPC_PORT = oprocess.env.CART_GRPC_PORT||5003; // Separate port for gRPC
+const GRPC_PORT = process.env.CART_GRPC_PORT||5003; // Separate port for gRPC
 
 // Middleware
 app.use(cors());
