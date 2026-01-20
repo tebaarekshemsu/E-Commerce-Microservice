@@ -7,7 +7,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const packageDef = protoLoader.loadSync(
-  path.join(__dirname, "../proto/product.proto")
+  path.join(__dirname, "../grpc/proto/product.proto")
 );
 
 const productProto = grpc.loadPackageDefinition(packageDef).product;
@@ -37,10 +37,10 @@ const server = new grpc.Server();
 server.addService(productProto.ProductService.service, { GetProduct });
 
 server.bindAsync(
-  "0.0.0.0:5002",
+  "0.0.0.0:5004",
   grpc.ServerCredentials.createInsecure(),
   () => {
-    console.log("🧪 Fake Product Service running on port 5002");
+    console.log("🧪 Fake Product Service running on port 5004");
     server.start();
   }
 );

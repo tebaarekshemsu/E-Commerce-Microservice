@@ -18,7 +18,7 @@ app.get("/", (req, res) => {
   res.json({ message: "Order controller responding!!" });
 });
 // Routes
-app.use(`order-service/api/orders`, orderRoutes);
+app.use(`/order-service/api/orders`, orderRoutes);
 // Error handling middleware
 app.use(errorHandler);
 // Database connection and server start

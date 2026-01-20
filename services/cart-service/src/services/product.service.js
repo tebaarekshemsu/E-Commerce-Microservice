@@ -1,4 +1,4 @@
-import { productClient } from "../grpc-client.js";
+import { productClient } from "../grpc/grpc-client.js";
 
 export const getProduct = (productId) => {
   return new Promise((resolve, reject) => {

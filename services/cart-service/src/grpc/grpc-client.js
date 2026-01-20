@@ -12,7 +12,7 @@ const productPackageDef = protoLoader.loadSync(
 );
 const productProto = grpc.loadPackageDefinition(productPackageDef).product;
 export const productClient = new productProto.ProductService(
-  process.env.PRODUCT_SERVICE_URL || "localhost:5002",
+  process.env.PRODUCT_SERVICE_URL || "localhost:5004",
   grpc.credentials.createInsecure()
 );
 

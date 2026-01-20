@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+package payment;
+
+service PaymentService {
+  rpc CreatePayment (CreatePaymentRequest) returns (CreatePaymentResponse);
+  rpc RefundPayment (RefundPaymentRequest) returns (RefundPaymentResponse);
+}
+
+message CreatePaymentRequest {
+  string orderId = 1;
+  string userId = 2;
+  double amount = 3;
+}
+
+message CreatePaymentResponse {
+  string paymentId = 1;
+  string status = 2; // SUCCESS | FAILED
+}
+
+message RefundPaymentRequest {
+  string paymentId = 1;
+  double amount = 2;
+}
+
+message RefundPaymentResponse {
+  string status = 1;
+}
