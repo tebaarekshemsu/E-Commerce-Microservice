@@ -4,12 +4,16 @@
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
+    { "key": "base_broker", "value": "http://localhost" },
     { "key": "base_product", "value": "http://localhost:8082/product-service/api" },
     { "key": "base_order", "value": "http://localhost:8083/order-service/api" },
     { "key": "base_payment", "value": "http://localhost:8085/payment-service" },
     { "key": "base_notification", "value": "http://localhost:8084" },
     { "key": "base_user", "value": "http://localhost:8001/api" },
-    { "key": "auth_token", "value": "" }
+    { "key": "auth_token", "value": "" },
+    { "key": "rabbit_host", "value": "http://localhost:15672" },
+    { "key": "rabbit_user", "value": "guest" },
+    { "key": "rabbit_pass", "value": "guest" }
   ],
   "item": [
     {
@@ -94,6 +98,11 @@
       "name": "Product Service",
       "item": [
         {
+          "name": "Ping",
+          "request": { "method": "GET", "url": { "raw": "{{base_product}}/../ping", "host": ["{{base_product}}"], "path": ["..", "ping"] } },
+          "response": []
+        },
+        {
           "name": "List Products",
           "request": { "method": "GET", "url": { "raw": "{{base_product}}/products", "host": ["{{base_product}}"], "path": ["products"] } },
           "response": []
@@ -159,6 +168,11 @@
     {
       "name": "Order Service",
       "item": [
+        {
+          "name": "Health",
+          "request": { "method": "GET", "url": { "raw": "{{base_order}}/../health", "host": ["{{base_order}}"], "path": ["..", "health"] } },
+          "response": []
+        },
         {
           "name": "List Orders",
           "request": { "method": "GET", "url": { "raw": "{{base_order}}/orders", "host": ["{{base_order}}"], "path": ["orders"] } },
@@ -255,6 +269,145 @@
         {
           "name": "Placeholder: health",
           "request": { "method": "GET", "url": { "raw": "{{base_notification}}/ping", "host": ["{{base_notification}}"], "path": ["ping"] } },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Broker Gateway",
+      "item": [
+        {
+          "name": "Broker health",
+          "request": { "method": "GET", "url": { "raw": "{{base_broker}}/ping", "host": ["{{base_broker}}"], "path": ["ping"] } },
+          "response": []
+        },
+        {
+          "name": "Proxy: list products",
+          "request": { "method": "GET", "url": { "raw": "{{base_broker}}/product-service/product-service/api/products", "host": ["{{base_broker}}"], "path": ["product-service", "product-service", "api", "products"] } },
+          "response": []
+        },
+        {
+          "name": "Proxy: create product",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{auth_token}}" } ],
+            "url": { "raw": "{{base_broker}}/product-service/product-service/api/products", "host": ["{{base_broker}}"], "path": ["product-service", "product-service", "api", "products"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Sample Product\",\n  \"description\": \"Via broker\",\n  \"price\": 19.99,\n  \"category_id\": 1\n}"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Proxy: list orders",
+          "request": { "method": "GET", "url": { "raw": "{{base_broker}}/order-service/order-service/api/orders", "host": ["{{base_broker}}"], "path": ["order-service", "order-service", "api", "orders"] } },
+          "response": []
+        },
+        {
+          "name": "Proxy: user register",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "url": { "raw": "{{base_broker}}/user-service/api/auth/register/", "host": ["{{base_broker}}"], "path": ["user-service", "api", "auth", "register", ""] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@example.com\",\n  \"username\": \"user1\",\n  \"password\": \"Password123!\",\n  \"confirm_password\": \"Password123!\"\n}"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Proxy: user login",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "url": { "raw": "{{base_broker}}/user-service/api/token/", "host": ["{{base_broker}}"], "path": ["user-service", "api", "token", ""] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"user1\",\n  \"password\": \"Password123!\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const data = pm.response.json();",
+                  "if (data && data.access) { pm.collectionVariables.set('auth_token', data.access); }"
+                ]
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "gRPC: get product",
+          "request": { "method": "GET", "url": { "raw": "{{base_broker}}/grpc/product/1", "host": ["{{base_broker}}"], "path": ["grpc", "product", "1"] } },
+          "response": []
+        },
+        {
+          "name": "gRPC: check availability",
+          "request": { "method": "GET", "url": { "raw": "{{base_broker}}/grpc/product/1/availability?quantity=1", "host": ["{{base_broker}}"], "path": ["grpc", "product", "1", "availability"], "query": [ { "key": "quantity", "value": "1" } ] } },
+          "response": []
+        },
+        {
+          "name": "gRPC: process payment",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "url": { "raw": "{{base_broker}}/grpc/payment", "host": ["{{base_broker}}"], "path": ["grpc", "payment"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"order_id\": \"1\",\n  \"amount\": 10.5,\n  \"currency\": \"USD\",\n  \"payment_method\": \"card\"\n}"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Proxy: product ping",
+          "request": { "method": "GET", "url": { "raw": "{{base_broker}}/product-service/ping", "host": ["{{base_broker}}"], "path": ["product-service", "ping"] } },
+          "response": []
+        },
+        {
+          "name": "Proxy: order health",
+          "request": { "method": "GET", "url": { "raw": "{{base_broker}}/order-service/order-service/health", "host": ["{{base_broker}}"], "path": ["order-service", "order-service", "health"] } },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Infra",
+      "item": [
+        {
+          "name": "RabbitMQ Overview",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{rabbit_host}}/api/overview", "host": ["{{rabbit_host}}"], "path": ["api", "overview"] },
+            "auth": {
+              "type": "basic",
+              "basic": [
+                { "key": "username", "value": "{{rabbit_user}}", "type": "string" },
+                { "key": "password", "value": "{{rabbit_pass}}", "type": "string" }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "RabbitMQ Queues",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{rabbit_host}}/api/queues", "host": ["{{rabbit_host}}"], "path": ["api", "queues"] },
+            "auth": {
+              "type": "basic",
+              "basic": [
+                { "key": "username", "value": "{{rabbit_user}}", "type": "string" },
+                { "key": "password", "value": "{{rabbit_pass}}", "type": "string" }
+              ]
+            }
+          },
           "response": []
         }
       ]

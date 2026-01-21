@@ -46,7 +46,10 @@ services:
     ports:
       - "8083:80"   
     environment:
-      - MONGO_URI=mongodb://mongo:27017/order_service
+      - MONGODB_URI=mongodb://mongo:27017/order_service
+      - DB_HOST=mongo
+      - DB_PORT=27017
+      - DB_NAME=order_service
       - USER_SERVICE_URL=http://user-service:8000/api/users
       - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672/
       - PRODUCT_SERVICE_GRPC_URL=product-service:9001
@@ -79,6 +82,7 @@ services:
       - DATABASE_URL=postgres://postgres:password@postgres:5432/user_service_db
       - ALLOWED_HOSTS=user-service,localhost
       - GRPC_PORT=9003
+      - PYTHONPATH=/usr/src/app:/usr/src/app/proto
     depends_on:
       - postgres
 
