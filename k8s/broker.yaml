@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: broker-service
+  namespace: e-commerce
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: broker-service
+  template:
+    metadata:
+      labels:
+        app: broker-service
+    spec:
+      containers:
+        - name: broker-service
+          image: project-broker-service:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 80
+          env:
+            - name: PRODUCT_SERVICE_GRPC_URL
+              value: product-service:9001
+            - name: PAYMENT_SERVICE_GRPC_URL
+              value: payment-service:9002
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: broker-service
+  namespace: e-commerce
+spec:
+  selector:
+    app: broker-service
+  ports:
+    - port: 80
+      targetPort: 80
+      name: http
+  type: NodePort

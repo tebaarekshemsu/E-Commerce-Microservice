@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: order-service
+  namespace: e-commerce
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: order-service
+  template:
+    metadata:
+      labels:
+        app: order-service
+    spec:
+      containers:
+        - name: order-service
+          image: project-order-service:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8300
+          env:
+            - name: MONGODB_URI
+              valueFrom:
+                configMapKeyRef:
+                  name: app-env
+                  key: MONGODB_URI
+            - name: USER_SERVICE_URL
+              value: http://user-service:8000/api/users
+            - name: RABBITMQ_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: app-env
+                  key: RABBITMQ_URL
+            - name: PRODUCT_SERVICE_GRPC_URL
+              value: product-service:9001
+            - name: PAYMENT_SERVICE_GRPC_URL
+              value: payment-service:9002
+            - name: USER_SERVICE_GRPC_URL
+              value: user-service:9003
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: order-service
+  namespace: e-commerce
+spec:
+  selector:
+    app: order-service
+  ports:
+    - port: 80
+      targetPort: 8300
+      name: http

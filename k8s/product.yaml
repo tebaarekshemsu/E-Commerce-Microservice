@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: product-service
+  namespace: e-commerce
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: product-service
+  template:
+    metadata:
+      labels:
+        app: product-service
+    spec:
+      containers:
+        - name: product-service
+          image: project-product-service:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 80
+            - containerPort: 9001
+          env:
+            - name: DSN
+              valueFrom:
+                configMapKeyRef:
+                  name: app-env
+                  key: DSN_PRODUCT
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: product-service
+  namespace: e-commerce
+spec:
+  selector:
+    app: product-service
+  ports:
+    - port: 80
+      targetPort: 80
+      name: http
+    - port: 9001
+      targetPort: 9001
+      name: grpc

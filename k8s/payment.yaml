@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: payment-service
+  namespace: e-commerce
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: payment-service
+  template:
+    metadata:
+      labels:
+        app: payment-service
+    spec:
+      containers:
+        - name: payment-service
+          image: project-payment-service:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 80
+            - containerPort: 9002
+          env:
+            - name: DSN
+              valueFrom:
+                configMapKeyRef:
+                  name: app-env
+                  key: DSN_PAYMENT
+            - name: RABBITMQ_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: app-env
+                  key: RABBITMQ_URL
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: payment-service
+  namespace: e-commerce
+spec:
+  selector:
+    app: payment-service
+  ports:
+    - port: 80
+      targetPort: 80
+      name: http
+    - port: 9002
+      targetPort: 9002
+      name: grpc

@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user-service
+  namespace: e-commerce
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: user-service
+  template:
+    metadata:
+      labels:
+        app: user-service
+    spec:
+      containers:
+        - name: user-service
+          image: project-user-service:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8000
+            - containerPort: 9003
+          env:
+            - name: DEBUG
+              valueFrom:
+                configMapKeyRef:
+                  name: app-env
+                  key: DEBUG
+            - name: SECRET_KEY
+              valueFrom:
+                configMapKeyRef:
+                  name: app-env
+                  key: SECRET_KEY
+            - name: DATABASE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: app-env
+                  key: DATABASE_URL_USER
+            - name: ALLOWED_HOSTS
+              valueFrom:
+                configMapKeyRef:
+                  name: app-env
+                  key: ALLOWED_HOSTS
+            - name: GRPC_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: app-env
+                  key: GRPC_PORT
+            - name: PYTHONPATH
+              value: /usr/src/app:/usr/src/app/proto
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: user-service
+  namespace: e-commerce
+spec:
+  selector:
+    app: user-service
+  ports:
+    - port: 8000
+      targetPort: 8000
+      name: http
+    - port: 9003
+      targetPort: 9003
+      name: grpc

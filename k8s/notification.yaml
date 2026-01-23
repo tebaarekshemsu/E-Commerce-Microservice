@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: notification-service
+  namespace: e-commerce
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: notification-service
+  template:
+    metadata:
+      labels:
+        app: notification-service
+    spec:
+      containers:
+        - name: notification-service
+          image: project-notification-service:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+          env:
+            - name: SMTP_HOST
+              value: ""
+            - name: SMTP_PORT
+              value: ""
+            - name: SMTP_USERNAME
+              value: ""
+            - name: SMTP_PASSWORD
+              value: ""
+            - name: TWILIO_ACCOUNT_SID
+              value: ""
+            - name: TWILIO_AUTH_TOKEN
+              value: ""
+            - name: RABBITMQ_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: app-env
+                  key: RABBITMQ_URL
+            - name: DB_HOST
+              value: postgres
+            - name: DB_PORT
+              value: "5432"
+            - name: DB_USER
+              value: postgres
+            - name: DB_PASSWORD
+              value: password
+            - name: DB_NAME
+              value: notifications
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: notification-service
+  namespace: e-commerce
+spec:
+  selector:
+    app: notification-service
+  ports:
+    - port: 8080
+      targetPort: 8080
+      name: http
